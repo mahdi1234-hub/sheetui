@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --border: #e5e5e5;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --accent: #f0f7ff;
+  --destructive: #ef4444;
+  --ring: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Glide Data Grid overrides */
+.gdg-style {
+  --gdg-bg-cell: #ffffff;
+  --gdg-bg-header: #f8f9fa;
+  --gdg-border-color: #e2e8f0;
+  --gdg-accent-color: #2563eb;
+}
+
+/* Menu bar styles */
+.menu-trigger {
+  @apply px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded cursor-pointer select-none;
+}
+
+.menu-content {
+  @apply bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[200px] z-50;
+}
+
+.menu-item {
+  @apply flex items-center justify-between px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer select-none;
+}
+
+.menu-item-icon {
+  @apply w-4 h-4 mr-2 text-gray-500;
+}
+
+.menu-separator {
+  @apply my-1 border-t border-gray-200;
+}
+
+.menu-shortcut {
+  @apply text-xs text-gray-400 ml-8;
+}
+
+/* Toolbar styles */
+.toolbar-btn {
+  @apply p-1.5 rounded hover:bg-gray-100 text-gray-600 transition-colors;
+}
+
+.toolbar-btn.active {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.toolbar-separator {
+  @apply w-px h-6 bg-gray-300 mx-1;
+}
+
+/* Formula bar */
+.formula-bar {
+  @apply flex items-center h-8 border-b border-gray-200 bg-white;
+}
+
+/* Sheet tabs */
+.sheet-tab {
+  @apply px-4 py-1.5 text-sm border-r border-gray-200 cursor-pointer select-none hover:bg-gray-50;
+}
+
+.sheet-tab.active {
+  @apply bg-white border-b-2 border-b-blue-500 font-medium;
+}
+
+/* Landing page animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+/* Chart dashboard drag and drop */
+.chart-widget {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden;
+  transition: box-shadow 0.2s;
+}
+
+.chart-widget:hover {
+  @apply shadow-md;
+}
+
+.chart-widget.dragging {
+  @apply shadow-xl opacity-75;
+}

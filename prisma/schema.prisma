@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  settings  Json?    @default("{}")
+
+  workbooks             Workbook[]
+  collaborations        WorkbookCollaborator[] @relation("CollaboratorUser")
+  invitedCollaborations WorkbookCollaborator[] @relation("InvitedByUser")
+  versions              WorkbookVersion[]
+  comments              Comment[]              @relation("CommentAuthor")
+  resolvedComments      Comment[]              @relation("CommentResolver")
+  aiChats               AiChatHistory[]
+  imports               Import[]
+  accounts              Account[]
+  sessions              Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Workbook {
+  id              String    @id @default(uuid())
+  name            String    @default("Untitled Workbook")
+  ownerId         String    @map("owner_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  isDeleted       Boolean   @default(false) @map("is_deleted")
+  deletedAt       DateTime? @map("deleted_at")
+  settings        Json?     @default("{}")
+  thumbnail       String?
+  lastOpenedAt    DateTime? @map("last_opened_at")
+  shareToken      String?   @unique @map("share_token")
+  sharePermission String?   @default("view") @map("share_permission")
+
+  owner         User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  collaborators WorkbookCollaborator[]
+  versions      WorkbookVersion[]
+  sheets        Sheet[]
+  comments      Comment[]
+  aiChats       AiChatHistory[]
+  imports       Import[]
+
+  @@map("workbooks")
+}
+
+model WorkbookCollaborator {
+  id         String    @id @default(uuid())
+  workbookId String    @map("workbook_id")
+  userId     String    @map("user_id")
+  permission String    @default("view")
+  invitedBy  String?   @map("invited_by")
+  invitedAt  DateTime  @default(now()) @map("invited_at")
+  acceptedAt DateTime? @map("accepted_at")
+  isActive   Boolean   @default(true) @map("is_active")
+
+  workbook Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  user     User     @relation("CollaboratorUser", fields: [userId], references: [id], onDelete: Cascade)
+  inviter  User?    @relation("InvitedByUser", fields: [invitedBy], references: [id])
+
+  @@unique([workbookId, userId])
+  @@map("workbook_collaborators")
+}
+
+model WorkbookVersion {
+  id          String   @id @default(uuid())
+  workbookId  String   @map("workbook_id")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  name        String?
+  description String?
+  snapshot    Json
+  isAutoSave  Boolean  @default(false) @map("is_auto_save")
+  sizeBytes   Int?     @map("size_bytes")
+
+  workbook Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  creator  User     @relation(fields: [createdBy], references: [id])
+
+  @@map("workbook_versions")
+}
+
+model Sheet {
+  id           String   @id @default(uuid())
+  workbookId   String   @map("workbook_id")
+  name         String   @default("Sheet0")
+  orderIndex   Int      @default(0) @map("order_index")
+  color        String?
+  isHidden     Boolean  @default(false) @map("is_hidden")
+  createdAt    DateTime @default(now()) @map("created_at")
+  frozenRows   Int      @default(0) @map("frozen_rows")
+  frozenCols   Int      @default(0) @map("frozen_cols")
+  zoom         Int      @default(100)
+  showGridlines Boolean @default(true) @map("show_gridlines")
+  columnWidths Json?    @default("{}") @map("column_widths")
+  rowHeights   Json?    @default("{}") @map("row_heights")
+
+  workbook Workbook  @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@map("sheets")
+}
+
+model Comment {
+  id         String    @id @default(uuid())
+  workbookId String    @map("workbook_id")
+  sheetId    String    @map("sheet_id")
+  rowIndex   Int       @map("row_index")
+  colIndex   Int       @map("col_index")
+  authorId   String    @map("author_id")
+  content    String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  isResolved Boolean   @default(false) @map("is_resolved")
+  resolvedBy String?   @map("resolved_by")
+  resolvedAt DateTime? @map("resolved_at")
+  parentId   String?   @map("parent_id")
+
+  workbook Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  sheet    Sheet    @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  author   User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  resolver User?    @relation("CommentResolver", fields: [resolvedBy], references: [id])
+  parent   Comment? @relation("CommentThread", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentThread")
+
+  @@map("comments")
+}
+
+model AiChatHistory {
+  id           String   @id @default(uuid())
+  workbookId   String   @map("workbook_id")
+  userId       String   @map("user_id")
+  sessionId    String   @map("session_id")
+  role         String
+  content      String
+  createdAt    DateTime @default(now()) @map("created_at")
+  tokensUsed   Int?     @map("tokens_used")
+  model        String?
+  contextCells Json?    @map("context_cells")
+
+  workbook Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("ai_chat_history")
+}
+
+model Import {
+  id           String   @id @default(uuid())
+  workbookId   String   @map("workbook_id")
+  userId       String   @map("user_id")
+  sourceType   String   @map("source_type")
+  sourceName   String?  @map("source_name")
+  importedAt   DateTime @default(now()) @map("imported_at")
+  rowCount     Int?     @map("row_count")
+  status       String   @default("pending")
+  errorMessage String?  @map("error_message")
+
+  workbook Workbook @relation(fields: [workbookId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("imports")
+}

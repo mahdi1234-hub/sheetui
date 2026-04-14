@@ -87,10 +87,10 @@ export default function LandingPage() {
               <ArrowRight className="w-4 h-4" />
             </button>
             <a
-              href="#features"
+              href="/demo"
               className="inline-flex items-center gap-2 bg-white text-gray-700 px-8 py-3.5 rounded-full text-base font-medium border border-gray-200 hover:bg-gray-50 transition"
             >
-              See Features
+              Try Demo
             </a>
           </div>
 

@@ -44,13 +44,13 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => signIn("google")}
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                 className="text-sm text-gray-600 hover:text-gray-900 px-4 py-2 transition"
               >
                 Sign In
               </button>
               <button
-                onClick={() => signIn("google")}
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                 className="text-sm bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-800 transition shadow-sm"
               >
                 Get Started Free
@@ -80,7 +80,7 @@ export default function LandingPage() {
           </p>
           <div className="flex items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <button
-              onClick={() => signIn("google")}
+              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-base font-medium hover:bg-gray-800 transition shadow-lg shadow-gray-900/20"
             >
               Start for Free
@@ -350,7 +350,7 @@ export default function LandingPage() {
             Start for free, no credit card required.
           </p>
           <button
-            onClick={() => signIn("google")}
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
             className="inline-flex items-center gap-2 bg-gray-900 text-white px-10 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition shadow-lg shadow-gray-900/20"
           >
             Get Started Free

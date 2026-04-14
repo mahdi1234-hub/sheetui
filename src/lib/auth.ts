@@ -27,8 +27,15 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+    async redirect({ url, baseUrl }) {
+      // After sign in, always go to dashboard
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (url.startsWith(baseUrl)) return url;
+      return `${baseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: "/auth/signin",
+    signOut: "/",
   },
 };
